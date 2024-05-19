@@ -9,7 +9,7 @@ BOB_PORT = 5006
 
 def main():
   # prepare message
-  message = "Hello Qiskit!"
+  message = "Hello!"
 
   Protocols.send_a_qmail(message, ALICE_PORT, BOB_ADDR, BOB_PORT)
 

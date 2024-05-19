@@ -1,47 +1,32 @@
-from qiskit import *
+from qiskit import QuantumCircuit, Aer, execute
+from channel_class import ClassicalChannel, QuantumChannel
+from cryptography.fernet import Fernet
 
-from channel_class import Channel
+# Alice's code to establish a quantum key
+def alice_quantum_key():
+    # Implement your QKD protocol (e.g., BB84) here
+    # Return the key
+    return 'quantum_key'
 
-n_master = 2
-n_slave = 1
-master_offset = 0
-slave_offset = n_master
+# Encrypt message using symmetric encryption
+def encrypt_message(message, key):
+    cipher_suite = Fernet(key)
+    return cipher_suite.encrypt(message.encode())
 
-circ = QuantumCircuit(n_master + n_slave)
+# Main function
+def main():
+    quantum_key = alice_quantum_key()
+    symmetric_key = b'abcdefghijklmnopqrstuvwxyz123456'  # Replace with a secure random key
 
-channel = Channel(slave_offset, 5000, remote_port = 5001)
+    # Message to send
+    message = "Hello, Bob! This is a secret message."
 
-## Master
-circ.x(0 + channel._offset)
-#circ.cx(0 + channel._offset, 1  + channel._offset)
-#irc.h(1 + channel._offset)
+    # Encrypt the message using symmetric encryption
+    encrypted_message = encrypt_message(message, symmetric_key)
 
+    # Send the encrypted message over the quantum channel
+    channel = QuantumChannel()
+    channel.send(encrypted_message, [1])  # Sending to Bob
 
-to_tpc = channel.send(circ,[1])  ## TODO: remove
-circ.draw()
-
-"""
-#Bob Part
-circ_bob = QuantumCircuit(3)
-
-bob_channel = Channel()
-circ_bob, offset = bob_channel.receive(circ_bob)#,to_tpc)
-circ_bob.draw()
-
-# Add new gates to circ2
-circ_bob.h(0+offset)
-#circ_bob.cx(0+offset, 1+offset)
-#psi2 = Statevector.from_instruction(circ_bob)
-
-to_tpc = bob_channel.send(circ_bob,[1])
-circ_bob.draw()
-"""
-
-#Alice Part
-circ_alice = QuantumCircuit(3)
-
-alice_channel = channel #Channel()
-alice_channel._slave_offset = 0
-circ_alice , offset = alice_channel.receive(circ_alice)#,to_tpc)
-circ_alice.draw(output='mpl',filename='test.png')
-
+if __name__ == "__main__":
+    main()
